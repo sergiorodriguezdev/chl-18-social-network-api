@@ -45,7 +45,7 @@ module.exports = {
     }
   },
 
-  // POST friend to user's friend's list
+  // POST friend to user's friends list
   async addFriend(req, res) {
     try {
       const userData = await User.findOneAndUpdate(
@@ -68,11 +68,9 @@ module.exports = {
         return res.status(404).json({ message: "No user with that friend ID" });
       }
 
-      return res
-        .status(200)
-        .json({
-          message: `${userData.username} and ${friendData.username} are now friends!`,
-        });
+      return res.status(200).json({
+        message: `${userData.username} and ${friendData.username} are now friends!`,
+      });
     } catch (error) {
       console.log(error);
       return res.status(500).json(error);
@@ -95,6 +93,61 @@ module.exports = {
       return res.status(200).json({
         message: "User has been updated",
         user: userData,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json(error);
+    }
+  },
+
+  // DELETE single user
+  async deleteUser(req, res) {
+    try {
+      const userData = await User.findOneAndDelete({ _id: req.params.userId });
+
+      if (!userData) {
+        return res.status(404).json({ message: "No user with that ID" });
+      }
+
+      const thoughtData = await Thought.deleteMany({
+        username: userData.username,
+      });
+
+      return res.status(200).json({
+        message: `${userData.username} and their thoughts have been deleted`,
+        user: userData,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json(error);
+    }
+  },
+
+  // DELETE friend from user's friends list
+  async unfriend(req, res) {
+    try {
+      const userData = await User.findOneAndUpdate(
+        { _id: req.params.userId },
+        { $pull: { friends: req.params.friendId } },
+        { new: true }
+      );
+
+      const friendData = await User.findOneAndUpdate(
+        { _id: req.params.friendId },
+        { $pull: { friends: req.params.userId } },
+        { new: true }
+      );
+
+      if (!userData) {
+        return res.status(404).json({ message: "No user with that ID" });
+      }
+
+      if (!friendData) {
+        return res.status(404).json({ message: "No user with that friend ID" });
+      }
+
+      return res.status(200).json({
+        message: `${userData.username} and ${friendData.username} are no longer friends!`,
       });
     } catch (error) {
       console.log(error);
