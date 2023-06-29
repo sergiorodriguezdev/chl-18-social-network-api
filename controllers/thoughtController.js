@@ -41,11 +41,9 @@ module.exports = {
       );
 
       if (!userData) {
-        return res
-          .status(404)
-          .json({
-            message: "Thought created, but there is no user with that ID",
-          });
+        return res.status(404).json({
+          message: "Thought created, but there is no user with that ID",
+        });
       }
 
       return res
@@ -69,8 +67,31 @@ module.exports = {
       if (!thoughtData) {
         return res.status(404).json({ message: "No thought with that ID" });
       }
-      
-      return res.status(200).json({message: 'Reaction created'})
+
+      return res.status(200).json({ message: "Reaction created" });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json(error);
+    }
+  },
+
+  // PUT single thought
+  async updateThought(req, res) {
+    try {
+      const thoughtData = await Thought.findOneAndUpdate(
+        { _id: req.params.thoughtId },
+        { thoughtText: req.body.thoughtText },
+        { new: true }
+      );
+
+      if (!thoughtData) {
+        return res.status(404).json({ message: "No thought with that ID" });
+      }
+
+      return res.status(200).json({
+        message: "Thought has been updated",
+        thought: thoughtData,
+      });
     } catch (error) {
       console.log(error);
       return res.status(500).json(error);

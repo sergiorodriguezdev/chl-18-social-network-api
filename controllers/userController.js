@@ -68,7 +68,34 @@ module.exports = {
         return res.status(404).json({ message: "No user with that friend ID" });
       }
 
-      return res.status(200).json({message: `${userData.username} and ${friendData.username} are now friends!`});
+      return res
+        .status(200)
+        .json({
+          message: `${userData.username} and ${friendData.username} are now friends!`,
+        });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json(error);
+    }
+  },
+
+  // PUT single user
+  async updateUser(req, res) {
+    try {
+      const userData = await User.findOneAndUpdate(
+        { _id: req.params.userId },
+        { email: req.body.email },
+        { new: true }
+      );
+
+      if (!userData) {
+        return res.status(404).json({ message: "No user with that ID" });
+      }
+
+      return res.status(200).json({
+        message: "User has been updated",
+        user: userData,
+      });
     } catch (error) {
       console.log(error);
       return res.status(500).json(error);
