@@ -1,3 +1,4 @@
+// Data to be seeded
 const data = [
     {
       "username": "michael.scott",
@@ -74,9 +75,11 @@ const { User, Thought } = require("../models");
 
 connection.on("error", (error) => error);
 
+// Open connection to MongoDB instance
 connection.once("open", async () => {
   console.log("Connected to MongoDB instance.");
 
+  // Delete users collection
   let usersCheck = await connection.db
     .listCollections({ name: "users" })
     .toArray();
@@ -84,6 +87,7 @@ connection.once("open", async () => {
     await connection.dropCollection("users");
   }
 
+  // Delete thoughts collection
   let thoughtsCheck = await connection.db
     .listCollections({ name: "thoughts" })
     .toArray();
@@ -91,6 +95,7 @@ connection.once("open", async () => {
     await connection.dropCollection("thoughts");
   }
 
+  // Create a single thought document
   const michaelsThought = await Thought.create({
     thoughtText: `That's what she said!`,
     username: 'michael.scott',
@@ -103,10 +108,12 @@ connection.once("open", async () => {
     const email = data[i].email;
     const thoughts = [];
 
+    // If username is michael.scott then add the ID of the thought previously created
     if (username === 'michael.scott') {
         thoughts.push(michaelsThought._id);
     }
 
+    // Create a single user document
     const userData = await User.create({
         username,
         email,
@@ -114,9 +121,9 @@ connection.once("open", async () => {
         thoughts
     });
 
+    // Start populating friends array to be used
     friends.push(userData._id);
   }
-
 
 
   console.log('Data seeded!');

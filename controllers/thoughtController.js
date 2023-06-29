@@ -1,10 +1,11 @@
-const { ObjectId } = require("mongoose").Types;
+// Import models
 const { User, Thought } = require("../models");
 
 module.exports = {
   // GET all thoughts
   async getThoughts(req, res) {
     try {
+      // Retrieve all thought documents
       const thoughtData = await Thought.find();
 
       return res.status(200).json(thoughtData);
@@ -17,6 +18,7 @@ module.exports = {
   // GET a single thought
   async getSingleThought(req, res) {
     try {
+      // Retrieve a thought document based on ID value provided
       const thoughtData = await Thought.findOne({ _id: req.params.thoughtId });
 
       if (!thoughtData) {
@@ -33,7 +35,11 @@ module.exports = {
   // POST thought
   async createThought(req, res) {
     try {
+      // Create a thought document using the POST request body
       const thoughtData = await Thought.create(req.body);
+
+      // Find a user using the userId value provided in the POST request body
+      // Then, add the ID of the newly created thought to the user's thoughts array
       const userData = await User.findOneAndUpdate(
         { _id: req.body.userId },
         { $addToSet: { thoughts: thoughtData._id } },
@@ -58,6 +64,8 @@ module.exports = {
   // POST reaction to a thought
   async addReaction(req, res) {
     try {
+      // Find a thought using the thoughtId value provided in the request
+      // Then, add a new reaction using the POST request body to the thought's reactions array
       const thoughtData = await Thought.findOneAndUpdate(
         { _id: req.params.thoughtId },
         { $addToSet: { reactions: req.body } },
@@ -78,6 +86,8 @@ module.exports = {
   // PUT single thought
   async updateThought(req, res) {
     try {
+      // Find a thought using the thoughtId value provided in the request
+      // Then, update its thoughtText property using the value provided in the POST request body
       const thoughtData = await Thought.findOneAndUpdate(
         { _id: req.params.thoughtId },
         { thoughtText: req.body.thoughtText },
@@ -101,6 +111,7 @@ module.exports = {
   // DELETE single thought
   async deleteThought(req, res) {
     try {
+      // Find a thought using the thoughtId value provided in the request and delete it
       const thoughtData = await Thought.findOneAndDelete({
         _id: req.params.thoughtId,
       });
@@ -109,6 +120,8 @@ module.exports = {
         return res.status(404).json({ message: "No thought with that ID" });
       }
 
+      // Find a user using the deleted thought's username property
+      //  Then, remove an existing thoughtId from the user's thoughts array
       const userData = await User.findOneAndUpdate(
         { username: thoughtData.username },
         { $pull: { thoughts: req.params.thoughtId } }
@@ -127,6 +140,8 @@ module.exports = {
   // DELETE reaction from a thought
   async deleteReaction(req, res) {
     try {
+      // Find a thought using the thoughtId value provided in the request
+      // Then, remove the reaction using the reactionId value provided in the request from the thought's reactions array
       const thoughtData = await Thought.findOneAndUpdate(
         { _id: req.params.thoughtId },
         { $pull: { reactions: { reactionId: req.params.reactionId } } },
