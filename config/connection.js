@@ -1,9 +1,6 @@
 const { connect, connection } = require('mongoose');
-require('dotenv').config();
 
-// Once deployed to Heroku, use MONGODB_URI environment variable to connect to hosted MongoDB Atlas instance
-const connectionString = 
-  process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/socialNetworkDB';
+const connectionString = 'mongodb://127.0.0.1:27017/socialNetworkDB';
 
 // Connect to MongoDB database
 connect(connectionString);
